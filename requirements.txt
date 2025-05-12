@@ -1,0 +1,14 @@
+fastapi==0.104.1
+uvicorn==0.23.2
+pydantic==2.4.2
+httpx==0.25.0
+python-dotenv==1.0.0
+jsonrpcclient==4.0.3
+jsonrpcserver==5.0.9
+aiohttp==3.8.6
+jinja2==3.1.2        # 서버 사이드 렌더링을 위한 템플릿 엔진
+psycopg2-binary==2.9.9  # PostgreSQL 어댑터 (SQLite용으로도 활용)
+python-multipart==0.0.6  # 폼 데이터 처리
+aiosqlite==0.19.0     # 비동기 SQLite 지원
+starlette==0.27.0     # FastAPI에서 사용하는 웹 프레임워크
+openai        # LLM 통합을 위한 OpenAI 라이브러리

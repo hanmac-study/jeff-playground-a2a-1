@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}A2A 고객 지원 에이전트 | 홈{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-5">A2A 고객 지원 에이전트 테스트 시스템</h1>
+            <p class="lead">Agent-to-Agent(A2A) 프로토콜을 사용하는 고객 지원 에이전트 테스트 인터페이스입니다.</p>
+            <hr class="my-4">
+            <p>에이전트와 대화를 시작하거나, 작업을 관리하거나, 새 에이전트를 등록해보세요.</p>
+            <div class="d-flex gap-2">
+                <a href="/chat" class="btn btn-primary">
+                    <i class="bi bi-chat-dots"></i> 대화 시작
+                </a>
+                <a href="/tasks/create" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i> 새 작업 생성
+                </a>
+                <a href="/agents/register" class="btn btn-outline-primary">
+                    <i class="bi bi-robot"></i> 에이전트 등록
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">등록된 에이전트</div>
+                        <div class="stat-value">{{ agents|length }}</div>
+                    </div>
+                    <i class="bi bi-robot fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card stat-card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">최근 작업</div>
+                        <div class="stat-value">{{ recent_tasks|length }}</div>
+                    </div>
+                    <i class="bi bi-list-task fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card stat-card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">실시간 테스트</div>
+                        <div class="stat-value">시작하기</div>
+                    </div>
+                    <i class="bi bi-lightning fs-1"></i>
+                </div>
+                <a href="/chat" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">최근 작업</h5>
+                <a href="/tasks" class="btn btn-sm btn-outline-primary">모두 보기</a>
+            </div>
+            <div class="card-body">
+                {% if recent_tasks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>상태</th>
+                                    <th>에이전트</th>
+                                    <th>일시</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in recent_tasks %}
+                                    <tr>
+                                        <td>
+                                            <a href="/tasks/{{ task.id }}" class="text-decoration-none">
+                                                {{ task.title|truncate(30) }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if task.status == 'created' %}
+                                                <span class="badge bg-secondary">생성됨</span>
+                                            {% elif task.status == 'in_progress' %}
+                                                <span class="badge bg-primary">진행 중</span>
+                                            {% elif task.status == 'waiting_for_input' %}
+                                                <span class="badge bg-warning">입력 대기</span>
+                                            {% elif task.status == 'completed' %}
+                                                <span class="badge bg-success">완료</span>
+                                            {% elif task.status == 'failed' %}
+                                                <span class="badge bg-danger">실패</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ task.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ task.agent_name }}</td>
+                                        <td>{{ task.updated_at }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center p-4">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="text-muted mt-2">아직 작업이 없습니다</p>
+                        <a href="/tasks/create" class="btn btn-primary btn-sm">새 작업 생성</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">등록된 에이전트</h5>
+                <a href="/agents/register" class="btn btn-sm btn-outline-primary">새 에이전트 등록</a>
+            </div>
+            <div class="card-body">
+                {% if agents %}
+                    <div class="row">
+                        {% for agent in agents %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 dashboard-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ agent.name }}</h6>
+                                        <p class="card-text small">{{ agent.description|truncate(80) }}</p>
+                                    </div>
+                                    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">버전: {{ agent.version }}</small>
+                                        <a href="/agents/{{ agent.id }}" class="btn btn-sm btn-outline-secondary">
+                                            상세정보
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center p-4">
+                        <i class="bi bi-robot fs-1 text-muted"></i>
+                        <p class="text-muted mt-2">등록된 에이전트가 없습니다</p>
+                        <a href="/agents/register" class="btn btn-primary btn-sm">에이전트 등록</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}A2A 고객 지원 에이전트 | {{ agent.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">홈</a></li>
+                <li class="breadcrumb-item"><a href="/agents">에이전트</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ agent.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>에이전트 정보</h4>
+            </div>
+            <div class="card-body">
+                <h2 class="card-title">{{ agent.name }}</h2>
+                <h6 class="card-subtitle mb-3 text-muted">ID: {{ agent.id }}</h6>
+                <p class="card-text">{{ agent.description }}</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>기본 정보</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>기본 URL</strong>
+                                <span>{{ agent.base_url }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>버전</strong>
+                                <span>{{ agent.version }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>인증 필요</strong>
+                                <span>{{ '필요' if agent.auth_required else '불필요' }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>등록일</strong>
+                                <span>{{ agent.created_at }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5>작업 통계</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>총 작업 수</strong>
+                                <span>{{ tasks|length }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>완료된 작업</strong>
+                                <span>{{ tasks|selectattr('status', 'equalto', 'completed')|list|length }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>진행 중인 작업</strong>
+                                <span>{{ tasks|selectattr('status', 'equalto', 'in_progress')|list|length }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong>실패한 작업</strong>
+                                <span>{{ tasks|selectattr('status', 'equalto', 'failed')|list|length }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>기능(Capabilities)</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>설명</th>
+                                    <th>매개변수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for capability in agent.capabilities %}
+                                <tr>
+                                    <td>{{ capability.name }}</td>
+                                    <td>{{ capability.description }}</td>
+                                    <td>
+                                        {% if capability.parameters %}
+                                            <ul class="mb-0">
+                                                {% for key, value in capability.parameters.items() %}
+                                                    <li><strong>{{ key }}</strong>: {{ value }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <span class="text-muted">없음</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/agents/{{ agent.id }}/edit" class="btn btn-secondary">정보 수정</a>
+                    <a href="/chat?agent_id={{ agent.id }}" class="btn btn-primary">새 대화 시작</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">최근 작업</h5>
+                <a href="/tasks?agent_id={{ agent.id }}" class="btn btn-sm btn-outline-primary">모두 보기</a>
+            </div>
+            <div class="card-body">
+                {% if tasks %}
+                    <div class="list-group">
+                        {% for task in tasks %}
+                            <a href="/tasks/{{ task.id }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ task.title }}</h6>
+                                    <small>
+                                        {% if task.status == 'created' %}
+                                            <span class="badge bg-secondary status-badge">생성됨</span>
+                                        {% elif task.status == 'in_progress' %}
+                                            <span class="badge bg-primary status-badge">진행 중</span>
+                                        {% elif task.status == 'waiting_for_input' %}
+                                            <span class="badge bg-warning status-badge">입력 대기</span>
+                                        {% elif task.status == 'completed' %}
+                                            <span class="badge bg-success status-badge">완료</span>
+                                        {% elif task.status == 'failed' %}
+                                            <span class="badge bg-danger status-badge">실패</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary status-badge">{{ task.status }}</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <p class="mb-1">{{ task.description|truncate(50) }}</p>
+                                <small>{{ task.updated_at }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">이 에이전트에 대한 작업이 아직 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

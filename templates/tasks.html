@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}A2A 고객 지원 에이전트 | 작업 목록{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2>작업 목록</h2>
+        <p class="text-muted">
+            {% if agent_id %}
+                {{ agent_name }} 에이전트의 모든 작업 목록입니다.
+            {% else %}
+                시스템에 등록된 모든 작업 목록입니다.
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form action="/tasks" method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="agent_id" class="form-label">에이전트</label>
+                        <select class="form-select" id="agent_id" name="agent_id">
+                            <option value="">모든 에이전트</option>
+                            {% for agent in agents %}
+                                <option value="{{ agent.id }}" {% if agent_id == agent.id %}selected{% endif %}>
+                                    {{ agent.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">상태</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">모든 상태</option>
+                            <option value="created" {% if status == 'created' %}selected{% endif %}>생성됨</option>
+                            <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>진행 중</option>
+                            <option value="waiting_for_input" {% if status == 'waiting_for_input' %}selected{% endif %}>입력 대기</option>
+                            <option value="completed" {% if status == 'completed' %}selected{% endif %}>완료됨</option>
+                            <option value="failed" {% if status == 'failed' %}selected{% endif %}>실패</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">필터 적용</button>
+                        {% if agent_id or status %}
+                            <a href="/tasks" class="btn btn-outline-secondary ms-2">필터 초기화</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        {% if tasks %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>제목</th>
+                            <th>에이전트</th>
+                            <th>상태</th>
+                            <th>생성일</th>
+                            <th>마지막 업데이트</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.id }}</td>
+                                <td>{{ task.title }}</td>
+                                <td>{{ task.agent_name }}</td>
+                                <td>
+                                    {% if task.status == 'created' %}
+                                        <span class="badge bg-secondary">생성됨</span>
+                                    {% elif task.status == 'in_progress' %}
+                                        <span class="badge bg-primary">진행 중</span>
+                                    {% elif task.status == 'waiting_for_input' %}
+                                        <span class="badge bg-warning">입력 대기</span>
+                                    {% elif task.status == 'completed' %}
+                                        <span class="badge bg-success">완료</span>
+                                    {% elif task.status == 'failed' %}
+                                        <span class="badge bg-danger">실패</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ task.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ task.created_at }}</td>
+                                <td>{{ task.updated_at }}</td>
+                                <td>
+                                    <a href="/tasks/{{ task.id }}" class="btn btn-sm btn-outline-primary">보기</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                {% if agent_id or status %}
+                    선택한 필터에 맞는 작업이 없습니다.
+                {% else %}
+                    아직 등록된 작업이 없습니다.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="/chat" class="btn btn-primary">새 대화 시작</a>
+    </div>
+</div>
+{% endblock %}

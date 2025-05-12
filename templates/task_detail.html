@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}A2A 고객 지원 에이전트 | 작업 상세 정보{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">홈</a></li>
+                <li class="breadcrumb-item"><a href="/tasks">작업</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ task.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{ task.title }}</h4>
+                <span>
+                    {% if task.status == 'created' %}
+                        <span class="badge bg-secondary">생성됨</span>
+                    {% elif task.status == 'in_progress' %}
+                        <span class="badge bg-primary">진행 중</span>
+                    {% elif task.status == 'waiting_for_input' %}
+                        <span class="badge bg-warning">입력 대기</span>
+                    {% elif task.status == 'completed' %}
+                        <span class="badge bg-success">완료</span>
+                    {% elif task.status == 'failed' %}
+                        <span class="badge bg-danger">실패</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ task.status }}</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <h6 class="card-subtitle mb-3 text-muted">ID: {{ task.id }}</h6>
+                <p class="card-text">{{ task.description }}</p>
+                
+                <div class="chat-container mt-5">
+                    {% if task.messages %}
+                        {% for message in task.messages %}
+                            <div class="d-flex mb-3 {% if message.id.startswith('msg_') and not message.id.startswith('msg_response_') %}justify-content-end{% endif %}">
+                                <div class="message-bubble {% if message.id.startswith('msg_') and not message.id.startswith('msg_response_') %}user{% else %}agent{% endif %}">
+                                    <div class="message-content">
+                                        {% if message.type == 'text' %}
+                                            {{ message.content }}
+                                        {% elif message.type == 'image' %}
+                                            <img src="{{ message.content }}" alt="이미지" class="img-fluid" style="max-width: 300px;">
+                                        {% elif message.type == 'file' %}
+                                            <a href="{{ message.content }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-file-earmark"></i> 파일 다운로드
+                                            </a>
+                                        {% else %}
+                                            {{ message.content }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="message-time text-end">{{ message.created_at }}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-messages">
+                            <p>이 작업에 대한 메시지가 없습니다.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if task.status != 'completed' and task.status != 'failed' %}
+                    <div class="mt-4">
+                        <form action="/tasks/{{ task.id }}/messages" method="post" class="d-flex">
+                            <input type="text" name="message" class="form-control" placeholder="메시지를 입력하세요..." required>
+                            <button type="submit" class="btn btn-primary ms-2">전송</button>
+                        </form>
+                    </div>
+                {% endif %}
+                
+                <div class="mt-4 d-flex gap-2">
+                    {% if task.status != 'completed' and task.status != 'failed' %}
+                        <form action="/tasks/{{ task.id }}/status" method="post" class="d-inline">
+                            <input type="hidden" name="status" value="completed">
+                            <button type="submit" class="btn btn-success">작업 완료</button>
+                        </form>
+                        
+                        <form action="/tasks/{{ task.id }}/status" method="post" class="d-inline">
+                            <input type="hidden" name="status" value="failed">
+                            <button type="submit" class="btn btn-danger">작업 실패</button>
+                        </form>
+                    {% endif %}
+                    
+                    <a href="/tasks" class="btn btn-outline-secondary">목록으로</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">에이전트 정보</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ task.agent_name }}</h6>
+                <p class="text-muted">ID: {{ task.agent_id }}</p>
+                <a href="/agents/{{ task.agent_id }}" class="btn btn-sm btn-outline-primary">에이전트 정보 보기</a>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">작업 메타데이터</h5>
+            </div>
+            <div class="card-body">
+                {% if task.metadata %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <tbody>
+                                {% for key, value in task.metadata.items() %}
+                                    <tr>
+                                        <th>{{ key }}</th>
+                                        <td>{{ value }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">메타데이터 없음</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">작업 정보</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>생성일</strong>
+                        <span>{{ task.created_at }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>마지막 업데이트</strong>
+                        <span>{{ task.updated_at }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <strong>메시지 수</strong>
+                        <span>{{ task.messages|length }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

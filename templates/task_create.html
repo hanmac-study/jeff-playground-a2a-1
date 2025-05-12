@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}A2A 고객 지원 에이전트 | 새 작업 생성{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">홈</a></li>
+                <li class="breadcrumb-item"><a href="/tasks">작업</a></li>
+                <li class="breadcrumb-item active" aria-current="page">새 작업</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2>새 작업 생성</h2>
+        <p class="text-muted">A2A 에이전트에게 할당할 새 작업을 생성합니다.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">작업 정보</h5>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+                
+                <form action="/tasks/create" method="post">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">제목</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="작업 제목" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">설명</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="3" placeholder="작업 설명을 입력하세요" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="agent_id" class="form-label">에이전트</label>
+                        <select class="form-select" id="agent_id" name="agent_id" required>
+                            <option value="" disabled selected>에이전트 선택</option>
+                            {% for agent in agents %}
+                                <option value="{{ agent.id }}">{{ agent.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="initial_message" class="form-label">초기 메시지</label>
+                        <textarea class="form-control" id="initial_message" name="initial_message" 
+                                  rows="5" placeholder="작업 시작을 위한 초기 메시지를 입력하세요"></textarea>
+                        <div class="form-text">작업 시작 시 에이전트에게 전달할 초기 메시지입니다. 선택 사항입니다.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="metadata" class="form-label">메타데이터 (JSON)</label>
+                        <textarea class="form-control" id="metadata" name="metadata" 
+                                  rows="3" placeholder='{"key": "value"}'></textarea>
+                        <div class="form-text">작업에 연결할 추가 메타데이터를 JSON 형식으로 입력하세요. 선택 사항입니다.</div>
+                    </div>
+                    
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-primary">작업 생성</button>
+                        <a href="/tasks" class="btn btn-outline-secondary ms-2">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">도움말</h5>
+            </div>
+            <div class="card-body">
+                <h6>작업이란?</h6>
+                <p>
+                    작업은 A2A 에이전트가 처리하는 개별 태스크를 나타냅니다. 
+                    하나의 작업은 여러 메시지로 구성될 수 있으며, 작업에 새 메시지가 추가되면 에이전트는 이를 처리하고 응답합니다.
+                </p>
+                
+                <h6>효과적인 작업 생성을 위한 팁</h6>
+                <ul>
+                    <li>명확하고 구체적인 제목을 사용하세요.</li>
+                    <li>작업의 목적과 기대하는 결과를 설명에 포함하세요.</li>
+                    <li>초기 메시지에 상세한 정보를 제공하면 더 정확한 응답을 받을 수 있습니다.</li>
+                    <li>메타데이터를 활용하여 작업에 대한 추가 컨텍스트를 제공하세요.</li>
+                </ul>
+                
+                <h6>작업 상태</h6>
+                <p>작업은 다음과 같은 상태를 가질 수 있습니다:</p>
+                <ul>
+                    <li><span class="badge bg-secondary">생성됨</span> - 작업이 생성되었지만 아직 처리되지 않음</li>
+                    <li><span class="badge bg-primary">진행 중</span> - 작업이 현재 처리 중</li>
+                    <li><span class="badge bg-warning">입력 대기</span> - 작업이 사용자의 추가 입력을 기다리는 중</li>
+                    <li><span class="badge bg-success">완료</span> - 작업이 성공적으로 완료됨</li>
+                    <li><span class="badge bg-danger">실패</span> - 작업 처리 중 오류 발생</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}A2A 고객 지원 에이전트 | 에이전트 등록{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">홈</a></li>
+                <li class="breadcrumb-item"><a href="/agents">에이전트</a></li>
+                <li class="breadcrumb-item active" aria-current="page">등록하기</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h2>새 에이전트 등록</h2>
+        <p class="text-muted">A2A 프로토콜을 지원하는 새 에이전트를 등록합니다.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">에이전트 정보</h5>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+                
+                <form action="/agents/register" method="post">
+                    <div class="mb-3">
+                        <label for="agent_url" class="form-label">에이전트 URL</label>
+                        <input type="url" class="form-control" id="agent_url" name="agent_url" 
+                               value="{{ agent_url if agent_url else '' }}" 
+                               placeholder="https://example.com/agent" required>
+                        <div class="form-text">A2A 프로토콜을 지원하는 에이전트의 베이스 URL을 입력하세요.</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="save_to_db" name="save_to_db" checked>
+                        <label class="form-check-label" for="save_to_db">데이터베이스에 저장</label>
+                        <div class="form-text">체크하면 발견된 에이전트 정보가 데이터베이스에 저장됩니다.</div>
+                    </div>
+                    
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-primary">등록하기</button>
+                        <a href="/agents" class="btn btn-outline-secondary ms-2">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">도움말</h5>
+            </div>
+            <div class="card-body">
+                <h6>에이전트 등록이란?</h6>
+                <p>
+                    A2A 프로토콜을 지원하는 에이전트를 시스템에 등록하면 해당 에이전트와 대화할 수 있습니다.
+                    에이전트는 A2A 프로토콜에 정의된 디스커버리 엔드포인트를 제공해야 합니다.
+                </p>
+                
+                <h6>필수 요건</h6>
+                <ul>
+                    <li>에이전트는 A2A 프로토콜을 준수해야 합니다.</li>
+                    <li>에이전트의 URL은 유효한 웹 URL이어야 합니다.</li>
+                    <li>인증이 필요한 경우 별도 설정이 필요할 수 있습니다.</li>
+                </ul>
+                
+                <h6>자주 묻는 질문</h6>
+                <p><strong>Q: 어떤 종류의 에이전트를 등록할 수 있나요?</strong></p>
+                <p>A: A2A 프로토콜을 지원하는 모든 에이전트를 등록할 수 있습니다. 예를 들어, 고객 지원, 정보 검색, 작업 자동화 등의 기능을 제공하는 에이전트가 있습니다.</p>
+                
+                <p><strong>Q: 등록된 에이전트를 삭제할 수 있나요?</strong></p>
+                <p>A: 네, 에이전트 목록 페이지에서 해당 에이전트를 삭제할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

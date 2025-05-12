@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="runner" type="CompoundRunConfigurationType">
+    <toRun name="main" type="PythonConfigurationType" />
+    <toRun name="main-billing" type="PythonConfigurationType" />
+    <toRun name="main-product" type="PythonConfigurationType" />
+    <toRun name="main-shipping" type="PythonConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>
